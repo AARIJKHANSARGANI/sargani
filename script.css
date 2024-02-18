@@ -1,0 +1,112 @@
+let totalEarnings = 0;
+let currentUser = null;
+
+// Initialize Firebase with your configuration
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+firebase.initializeApp(firebaseConfig);
+
+document.addEventListener('DOMContentLoaded', function () {
+    showStartScreen();
+});
+
+// New function to handle Google Sign-In callback
+function onGoogleSignIn(googleUser) {
+    const profile = googleUser.getBasicProfile();
+    currentUser = { username: profile.getName() };
+    showProfileSection();
+    closeLoginPopup();
+}
+
+function startApp() {
+    showMainScreen();
+    showProfileSection();
+    showChallenges();
+}
+
+function showProfileSection() {
+    if (currentUser) {
+        document.getElementById('profileSection').classList.remove('hidden');
+        updateEarnings();
+    } else {
+        document.getElementById('profileSection').classList.add('hidden');
+    }
+}
+
+function logout() {
+    currentUser = null;
+    showProfileSection();
+}
+
+function completeChallenge(reward) {
+    if (!currentUser) {
+        alert('Please log in to complete challenges.');
+        return;
+    }
+
+    totalEarnings += reward;
+    updateEarnings();
+    alert(`Challenge completed! Earned ${reward.toFixed(3)} BTC.`);
+
+    // Open the link when a challenge is completed
+    window.open('https://www.toprevenuegate.com/qhskz44ycy?key=f4910ecd6372ceee23e1d7e29463c624', '_blank');
+}
+
+function showChallenges() {
+    const challengesSection = document.getElementById('challenges');
+
+    // Sample data for challenges (replace with actual data from your server)
+    const challengesData = [
+        { title: 'Daily Challenge', reward: 0.001 },
+        { title: 'Coding Challenge', reward: 0.01 },
+        // Add more challenge data as needed
+    ];
+
+    // Generate challenge cards
+    challengesData.forEach(challenge => {
+        const card = document.createElement('div');
+        card.classList.add('challenge-card');
+        card.innerHTML = `
+            <h2>${challenge.title}</h2>
+            <p>Reward: ${challenge.reward.toFixed(3)} BTC</p>
+            <div class="progress-bar" onclick="completeChallenge(${challenge.reward})">
+                <div class="progress"></div>
+            </div>
+        `;
+        challengesSection.appendChild(card);
+    });
+}
+
+function updateEarnings() {
+    document.getElementById('earnings').innerText = `Total Earnings: ${totalEarnings.toFixed(3)} BTC`;
+}
+
+function showMainScreen() {
+    document.getElementById('startScreen').classList.add('hidden');
+    document.getElementById('mainScreen').classList.remove('hidden');
+}
+
+function showStartScreen() {
+    document.getElementById('startScreen').classList.remove('hidden');
+    document.getElementById('mainScreen').classList.add('hidden');
+}
+
+function goBack() {
+    showStartScreen();
+}
+
+function toggleProfile() {
+    const popup = document.getElementById('loginPopup');
+    popup.classList.toggle('hidden');
+}
+
+function closeLoginPopup() {
+    const popup = document.getElementById('loginPopup');
+    popup.classList.add('hidden');
+}
